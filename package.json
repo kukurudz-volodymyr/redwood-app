@@ -19,7 +19,7 @@
     "yarn": ">=1.15 <2"
   },
   "scripts": {
-    "start": "yarn redwood prisma db seed && yarn redwood dev"
+    "start": "yarn rw prisma migrate dev && yarn redwood prisma db seed && yarn redwood dev"
   },
   "prisma": {
     "seed": "yarn rw exec seed"
