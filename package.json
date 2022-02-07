@@ -18,7 +18,14 @@
     "node": ">=14.17 <=16.x",
     "yarn": ">=1.15 <2"
   },
+  "scripts": {
+    "start": "yarn redwood dev"
+  },
   "prisma": {
     "seed": "yarn rw exec seed"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.4.3",
+    "@heroicons/react": "^1.0.5"
   }
 }

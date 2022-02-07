@@ -1,40 +1,78 @@
-import type { Prisma } from '@prisma/client'
-import { db } from 'api/src/lib/db'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
-export default async () => {
-  try {
-    //
-    // Manually seed via `yarn rw prisma db seed`
-    // Seeds automatically with `yarn rw prisma migrate dev` and `yarn rw prisma migrate reset`
-    //
-    // Update "const data = []" to match your data model and seeding needs
-    //
-    const data: Prisma.UserExampleCreateInput['data'][] = [
-      // To try this example data with the UserExample model in schema.prisma,
-      // uncomment the lines below and run 'yarn rw prisma migrate dev'
-      //
-      // { name: 'alice', email: 'alice@example.com' },
-      // { name: 'mark', email: 'mark@example.com' },
-      // { name: 'jackie', email: 'jackie@example.com' },
-      // { name: 'bob', email: 'bob@example.com' },
-    ]
-    console.log(
-      "\nUsing the default './scripts/seed.{js,ts}' template\nEdit the file to add seed data\n"
-    )
+async function main() {
+  const techTag = await prisma.tag.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: 'Tech',
+    },
+  })
+  const sportTag = await prisma.tag.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      id: 2,
+      name: 'Sport',
+    },
+  })
+  const user = await prisma.user.upsert({
+    where: { email: 'john.snow@test.com' },
+    update: {},
+    create: {
+      email: 'john.snow@test.com',
+      firstName: 'John',
+      lastName: 'Snow',
+      avatar:
+        'https://cdn3.vectorstock.com/i/1000x1000/38/17/male-face-avatar-logo-template-pictograph-vector-11333817.jpg',
+      posts: {
+        create: {
+          title: 'Check out Prisma with Next.js',
+          body: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum`,
+          postTag: {
+            create: {
+              tagId: techTag.id,
+            },
+          },
+        },
+      },
+    },
+  })
+  console.log('user: ', user)
 
-    // Note: if using PostgreSQL, using `createMany` to insert multiple records is much faster
-    // @see: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#createmany
-    Promise.all(
-      //
-      // Change to match your data model and seeding needs
-      //
-      data.map(async (data: Prisma.UserExampleCreateInput['data']) => {
-        const record = await db.userExample.create({ data })
-        console.log(record)
-      })
-    )
-  } catch (error) {
-    console.warn('Please define your seed data.')
-    console.error(error)
-  }
+  const user2 = await prisma.user.upsert({
+    where: { email: 'will.smith@test.com' },
+    update: {},
+    create: {
+      email: 'will.smith@test.com',
+      firstName: 'Will',
+      lastName: 'Smith',
+      avatar:
+        'https://cdn3.vectorstock.com/i/1000x1000/38/17/male-face-avatar-logo-template-pictograph-vector-11333817.jpg',
+      posts: {
+        create: {
+          title: 'About Racing',
+          body: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum`,
+          postTag: {
+            create: {
+              tagId: sportTag.id,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  console.log({ user, user2 })
 }
+
+main()
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
